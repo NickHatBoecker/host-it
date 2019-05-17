@@ -1,0 +1,30 @@
+# Deploy-it!
+
+> An electron-vue app to manage your virtualhosts.
+
+#### Build Setup
+
+``` bash
+# install dependencies
+npm install
+
+# serve with hot reload at localhost:9080
+npm run dev
+
+# build electron application for production
+npm run build
+
+# lint all JS/Vue component files in `src/`
+npm run lint
+
+```
+
+#### Preconfiguration
+
+Add the following line to your httpd conf and create `vhosts` directory if necessary. Restart apache. Then, in the application, save the path to the `vhosts` directory.
+
+```Include extra/vhosts/*.conf```
+
+---
+
+This project was generated with [electron-vue](https://github.com/SimulatedGREG/electron-vue)@[8fae476](https://github.com/SimulatedGREG/electron-vue/tree/8fae4763e9d225d3691b627e83b9e09b56f6c935) using [vue-cli](https://github.com/vuejs/vue-cli). Documentation about the original structure can be found [here](https://simulatedgreg.gitbooks.io/electron-vue/content/index.html).
