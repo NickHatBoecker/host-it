@@ -69,7 +69,13 @@
                     <div>
                         <p color="grey">Please provide absolute path to virtualhost directory. You can find more information on <a @click="openUrl('https://github.com/theskyliner/host-it/')">gitHub</a>.</p>
                         <!-- @TODO file selection -->
-                        <v-text-field v-model="virtualhostsPathInput" placeholder="Absolute path to virtualhost directory..." solo></v-text-field>
+                        <v-text-field
+                            v-model="virtualhostsPathInput"
+                            placeholder="Absolute path to virtualhost directory..."
+                            solo
+                        ></v-text-field>
+
+                        <upload-button title="Choose folder..." :selectedCallback="onSelectVirtualhostPath"></upload-button>
                     </div>
                     <div>
                         <h3>Helpers</h3>
@@ -118,6 +124,14 @@
                             v-model="formCustomErrorLog"
                             label="Create custom error.log in DocumentRoot"
                         ></v-checkbox>
+
+                        <v-textarea
+                            box
+                            label="Virtualhost Preview"
+                            :value="getVirtualhostString()"
+                            rows="12"
+                            readonly
+                        ></v-textarea>
                     </v-form>
                 </v-container>
             </v-card>
@@ -127,6 +141,7 @@
 
 <script>
     import Vue from 'vue';
+    import UploadButton from '../components/UploadFileButton';
 
     const STORAGE_VIRTUALHOSTS_PATH = 'nhb_hostit.virtualhosts_path';
     const DEFAULT_ERROR_LOG = '/var/log/apache2/error_log';
@@ -270,7 +285,7 @@
                         break;
                     case "editm":
                         this.currentVirtualhost = virtualhost;
-                        // @TODO
+                        // @TODO editm
                         break;
                     case "remove":
                         exec('rm '+virtualhost.filePath);
@@ -344,24 +359,32 @@
             },
 
             getVirtualhostString () {
-                return `
-                    <VirtualHost *:80>
-                        DocumentRoot "${this.formDocumentroot}"
-                        ServerName ${this.formServername}
-                        <Directory ${this.formDocumentroot}>
-                           Options FollowSymlinks Indexes
-                           AllowOverride All
-                           Require all granted
-                        </Directory>
-                        ${ this.formCustomErrorLog ? `ErrorLog ${this.formDocumentroot}/error.log` : "" }
-                    </VirtualHost>
-                `;
+                let string = "";
+                string += "<VirtualHost *:80>\n\tDocumentRoot \""+this.formDocumentroot+"\"\n";
+                string += "\tServerName "+this.formServername+"\n";
+                string += "\n\t<Directory "+this.formDocumentroot+">\n";
+                string += "\t\tOptions FollowSymlinks Indexes\n\t\tAllowOverride All\n\t\tRequire all granted\n";
+                string += "\t</Directory>\n";
+
+                if (this.formCustomErrorLog) {
+                    string += "\n\tErrorLog "+this.formDocumentroot+"/error.log\n";
+                }
+
+                string += "</VirtualHost>";
+
+                return string;
             },
 
             showAlert (message, type) {
                 console.log(message);
             },
+
+            onSelectVirtualhostPath (file) {
+                this.virtualhostsPathInput = file.path;
+            },
         },
+
+        components: { UploadButton },
     }
 </script>
 
