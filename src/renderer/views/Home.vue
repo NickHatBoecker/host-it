@@ -20,36 +20,11 @@
         </v-toolbar>
 
         <v-container>
-            <!-- @TODO outsource table -->
-            <v-data-table
-                    :headers="headers"
-                    :items="virtualhosts"
-                    hide-actions
-                    item-key="name"
-                    class="mt--large"
-            >
-                <template v-slot:items="props">
-                    <td class="c-virtualhost text-xs-left title">
-                        <a @click="openUrl(`http://${props.item.name}`)" title="Open">
-                            {{ props.item.name }}
-                        </a>
-                    </td>
-                    <td class="text-xs-right">
-                        <v-menu bottom left>
-                            <template v-slot:activator="{ on }">
-                                <v-btn icon v-on="on">
-                                    <v-icon>more_vert</v-icon>
-                                </v-btn>
-                            </template>
-                            <v-list>
-                                <v-list-tile v-for="(item, i) in actions" :key="i" @click="doAction(item.id, props.item)">
-                                    <v-list-tile-title>{{ item.title }}</v-list-tile-title>
-                                </v-list-tile>
-                            </v-list>
-                        </v-menu>
-                    </td>
-                </template>
-            </v-data-table>
+            <virtualhost-table
+                :virtualhosts="virtualhosts"
+                @doAction="doAction"
+                @openUrl="openUrl"
+            ></virtualhost-table>
         </v-container>
 
         <!-- @TODO outsource dialog -->
@@ -68,7 +43,6 @@
                 <v-container>
                     <div>
                         <p color="grey">Please provide absolute path to virtualhost directory. You can find more information on <a @click="openUrl('https://github.com/theskyliner/host-it/')">gitHub</a>.</p>
-                        <!-- @TODO file selection -->
                         <v-text-field
                             v-model="virtualhostsPathInput"
                             placeholder="Absolute path to virtualhost directory..."
@@ -93,7 +67,7 @@
         <v-dialog v-model="showEditModal" fullscreen hide-overlay transition="dialog-bottom-transition">
             <v-card>
                 <v-toolbar dark color="blue darken-3">
-                    <v-btn icon dark @click="showEditModal = false; currentVirtualhost = null">
+                    <v-btn icon dark @click="closeEditModal()">
                         <v-icon>close</v-icon>
                     </v-btn>
                     <v-toolbar-title>
@@ -142,6 +116,7 @@
 <script>
     import Vue from 'vue';
     import UploadButton from '../components/UploadFileButton';
+    import VirtualhostTable from '../components/VirtualhostTable';
 
     const STORAGE_VIRTUALHOSTS_PATH = 'nhb_hostit.virtualhosts_path';
     const DEFAULT_ERROR_LOG = '/var/log/apache2/error_log';
@@ -166,19 +141,9 @@
                 loader: null,
                 loading: [],
                 virtualhosts: [],
-                headers: [
-                    { text: 'Virtualhost', value: 'name', class: 'title' },
-                    { text: 'Actions', value: 'actions', class: 'title', sortable: false, align: 'right' },
-                ],
                 showSettingsModal: false,
                 virtualhostsPath: '',
                 virtualhostsPathInput: '',
-                actions: [
-                    { "id": "edit", "title": "edit" },
-                    //{ "id": "editm", "title": "edit manually" },
-                    { "id": "remove", "title": "remove" },
-                    { "id": "errorlog", "title": "open error.log" },
-                ],
 
                 currentVirtualhost: null,
                 showEditModal: false,
@@ -271,8 +236,7 @@
             },
 
             openUrl (url) {
-                var shell = require('electron').shell;
-                shell.openExternal(url);
+                require('electron').shell.openExternal(url);
             },
 
             doAction (action, virtualhost) {
@@ -328,9 +292,7 @@
                     this.saveNewVirtualhost();
                 }
 
-                this.formServername = "";
-                this.formDocumentroot = "";
-                this.formCustomErrorLog = true;
+                this.closeEditModal();
             },
 
             updateVirtualhost () {
@@ -354,7 +316,6 @@
                     }
                 });
 
-                this.showEditModal = false;
                 this.fetch();
             },
 
@@ -382,9 +343,18 @@
             onSelectVirtualhostPath (file) {
                 this.virtualhostsPathInput = file.path;
             },
+
+            closeEditModal () {
+                this.showEditModal = false;
+                this.currentVirtualhost = null;
+
+                this.formServername = "";
+                this.formDocumentRoot = "";
+                this.formCustomErrorLog = true;
+            },
         },
 
-        components: { UploadButton },
+        components: { UploadButton, VirtualhostTable },
     }
 </script>
 
