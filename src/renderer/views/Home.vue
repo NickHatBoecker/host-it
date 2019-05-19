@@ -86,16 +86,12 @@
     import Vue from 'vue';
     import DialogSettings from '../components/dialogs/Settings';
     import VirtualhostTable from '../components/VirtualhostTable';
-    import { getVirtualhostPath, restartApache } from "../mixins/helpers.js";
+    import { getFileContent, getVirtualhostPath, restartApache } from "../mixins/helpers.js";
 
     const DEFAULT_ERROR_LOG = '/var/log/apache2/error_log';
 
     const { exec } = require('child_process');
     const fs = require('fs');
-    const util = require('util');
-
-    // Convert fs.readFile into Promise version of same
-    const readFile = util.promisify(fs.readFile);
 
     export default {
         name: 'home',
@@ -151,7 +147,7 @@
 
                     files.forEach(function (file) {
                         var filePath = `${that.virtualhostsPath}/${file}`;
-                        that.getFileContent(filePath).then(vhostString => {
+                        getFileContent(filePath).then(vhostString => {
                             const virtualhost = that.string2Virtualhost(vhostString, filePath);
                             if (!virtualhost) {
                                 return;
@@ -186,10 +182,6 @@
                 }
 
                 return virtualhost;
-            },
-
-            async getFileContent (filePath) {
-                return await readFile(filePath, {encoding: 'utf-8'});
             },
 
             doAction (action, virtualhost) {
