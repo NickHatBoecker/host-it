@@ -1,6 +1,8 @@
 # Deploy-it!
 
-> An electron-vue app to manage your virtualhosts.
+> Host-it! is an electron-vue app to manage your virtualhosts easily on Mac OS.
+
+**ATTENTION**: Do not use this on a production system. It's for develop purpose only.
 
 #### Build Setup
 
