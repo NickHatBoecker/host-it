@@ -11,9 +11,13 @@
                     <v-btn dark flat @click="saveSettings()">Save</v-btn>
                 </v-toolbar-items>
             </v-toolbar>
+
             <v-container>
                 <div>
-                    <p color="grey">Please provide absolute path to virtualhost directory. You can find more information on <a @click="openUrl('https://github.com/theskyliner/host-it/')">gitHub</a>.</p>
+                    <p color="grey">
+                        Please provide absolute path to virtualhost directory. You can find more information on
+                        <a @click="openUrl('https://github.com/theskyliner/host-it/')">gitHub</a>.
+                    </p>
                     <v-text-field
                         v-model="virtualhostsPathInput"
                         placeholder="Absolute path to virtualhost directory..."
@@ -22,6 +26,11 @@
 
                     <upload-button title="Choose folder..." :selectedCallback="onSelectVirtualhostPath"></upload-button>
                 </div>
+
+                <div>
+                    <!-- @TODO default error log -->
+                </div>
+
                 <div>
                     <h3>Helpers</h3>
                     <div class="mt">
@@ -37,10 +46,10 @@
 
 <script>
 import UploadButton from '../UploadFileButton';
-import { getVirtualhostPath, openUrl, restartApache, setVirtualhostPath } from "../../mixins/helpers.js"
+import { getVirtualhostPath, openUrl, restartApache, setVirtualhostPath } from "../../mixins/helpers.js";
 
 export default {
-    name: 'dialog-settings',
+    name: 'DialogSettings',
 
     components: { UploadButton },
 
@@ -57,6 +66,7 @@ export default {
     methods: {
         getVirtualhostPath,
         restartApache,
+        openUrl,
 
         saveSettings () {
             setVirtualhostPath(this.virtualhostsPathInput);

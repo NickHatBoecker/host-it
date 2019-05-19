@@ -32,61 +32,20 @@
             @save="onSaveSettings"
         ></dialog-settings>
 
-        <!-- @TODO outsource dialog -->
-        <v-dialog v-model="showEditModal" fullscreen hide-overlay transition="dialog-bottom-transition">
-            <v-card>
-                <v-toolbar dark color="blue darken-3">
-                    <v-btn icon dark @click="closeEditModal()">
-                        <v-icon>close</v-icon>
-                    </v-btn>
-                    <v-toolbar-title>
-                        {{ currentVirtualhost ? 'Edit Virtualhost' : 'Add Virtualhost' }}
-                    </v-toolbar-title>
-                    <v-spacer></v-spacer>
-                    <v-toolbar-items>
-                        <v-btn dark flat @click="saveVirtualhost()">Save</v-btn>
-                    </v-toolbar-items>
-                </v-toolbar>
-                <v-container>
-                    <v-form v-model="virtualhostIsValid">
-                        <v-text-field
-                            v-model="formServername"
-                            label="ServerName"
-                            placeholder="domain.test"
-                            :rules="formRules"
-                            required
-                        ></v-text-field>
-                        <v-text-field
-                            v-model="formDocumentroot"
-                            label="DocumentRoot"
-                            placeholder="/var/www/domain.test"
-                            :rules="formRules"
-                            required
-                        ></v-text-field>
-                        <v-checkbox
-                            v-model="formCustomErrorLog"
-                            label="Create custom error.log in DocumentRoot"
-                        ></v-checkbox>
-
-                        <v-textarea
-                            box
-                            label="Virtualhost Preview"
-                            :value="getVirtualhostString()"
-                            rows="12"
-                            readonly
-                        ></v-textarea>
-                    </v-form>
-                </v-container>
-            </v-card>
-        </v-dialog>
+        <dialog-edit-virtualhost
+            :showEditModal="showEditModal"
+            @close="showEditModal = false; currentVirtualhost = null;"
+            @save="showEditModal = false; currentVirtualhost = null; fetch()"
+        ></dialog-edit-virtualhost>
     </div>
 </template>
 
 <script>
     import Vue from 'vue';
+    import DialogEditVirtualhost from '../components/dialogs/EditVirtualhost';
     import DialogSettings from '../components/dialogs/Settings';
     import VirtualhostTable from '../components/VirtualhostTable';
-    import { getFileContent, getVirtualhostPath, restartApache } from "../mixins/helpers.js";
+    import { getFileContent, getVirtualhostPath, restartApache, showAlert } from "../mixins/helpers.js";
 
     const DEFAULT_ERROR_LOG = '/var/log/apache2/error_log';
 
@@ -96,23 +55,16 @@
     export default {
         name: 'home',
 
-        components: { DialogSettings, VirtualhostTable },
+        components: { DialogEditVirtualhost, DialogSettings, VirtualhostTable },
 
         data: function () {
             return {
                 virtualhosts: [],
-                showSettingsModal: false,
                 virtualhostsPath: '',
-
                 currentVirtualhost: null,
+
+                showSettingsModal: false,
                 showEditModal: false,
-                virtualhostIsValid: false,
-                formServername: "",
-                formDocumentroot: "",
-                formCustomErrorLog: true,
-                formRules: [
-                    v => !!v || 'Field is required',
-                ],
             }
         },
 
@@ -206,76 +158,17 @@
                             break;
                         }
 
-                        exec('open '+DEFAULT_ERROR_LOG);
+                        exec('open '+DEFAULT_ERROR_LOG, function (error) {
+                            if (error) {
+                                console.log(error);
+                                showAlert('Default error_log under "/var/log/apache2/error_log" does not exist.')
+                            }
+                        });
                         break;
                     default:
                         error.log('action not available: '+action);
                         break;
                 }
-            },
-
-            saveVirtualhost () {
-                if (!this.formServername || !this.formDocumentroot) {
-                    return;
-                }
-
-                if (this.currentVirtualhost) {
-                    this.updateVirtualhost();
-                } else {
-                    this.saveNewVirtualhost();
-                }
-
-                this.closeEditModal();
-            },
-
-            updateVirtualhost () {
-                // Remove old file
-                exec('rm '+this.currentVirtualhost.filePath);
-
-                // Save new file
-                this.saveNewVirtualhost();
-                this.currentVirtualhost = null;
-            },
-
-            saveNewVirtualhost () {
-                const that = this;
-                const vhostPath = this.virtualhostsPath.replace(/\/$/, "") + "/" + this.formServername;
-
-                fs.writeFile(vhostPath, this.getVirtualhostString(), function (error) {
-                    if (error) {
-                        showAlert(error, 'danger');
-                    } else {
-                        showAlert('Virtualhost successfully added. <a @click="restartApache()">Restart Apache now</a>.', 'success');
-                    }
-                });
-
-                this.fetch();
-            },
-
-            getVirtualhostString () {
-                let string = "";
-                string += "<VirtualHost *:80>\n\tDocumentRoot \""+this.formDocumentroot+"\"\n";
-                string += "\tServerName "+this.formServername+"\n";
-                string += "\n\t<Directory "+this.formDocumentroot+">\n";
-                string += "\t\tOptions FollowSymlinks Indexes\n\t\tAllowOverride All\n\t\tRequire all granted\n";
-                string += "\t</Directory>\n";
-
-                if (this.formCustomErrorLog) {
-                    string += "\n\tErrorLog "+this.formDocumentroot+"/error.log\n";
-                }
-
-                string += "</VirtualHost>";
-
-                return string;
-            },
-
-            closeEditModal () {
-                this.showEditModal = false;
-                this.currentVirtualhost = null;
-
-                this.formServername = "";
-                this.formDocumentRoot = "";
-                this.formCustomErrorLog = true;
             },
 
             onSaveSettings () {

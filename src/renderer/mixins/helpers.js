@@ -60,9 +60,11 @@ export function setVirtualhostPath(path) {
 }
 
 /**
+ * @TODO alert rendering
+ *
  * @param string message
  * @param string type
  */
 export function showAlert(message, type) {
-    console.log(message);
+    alert(message);
 }

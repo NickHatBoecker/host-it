@@ -33,7 +33,7 @@
 </template>
 
 <script>
-import { getVirtualhostPath, openUrl, setVirtualhostPath } from "../mixins/helpers.js"
+import { getVirtualhostPath, openUrl, setVirtualhostPath } from "../mixins/helpers.js";
 
 export default {
     name: 'virtualhost-table',
@@ -54,6 +54,10 @@ export default {
                 { "id": "errorlog", "title": "open error.log" },
             ],
         }
+    },
+
+    methods: {
+        openUrl,
     },
 }
 </script>
