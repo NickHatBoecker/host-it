@@ -23,7 +23,7 @@
                         required
                     ></v-text-field>
                     <v-text-field
-                        v-model="formDocumentroot"
+                        v-model="formDocumentRoot"
                         label="DocumentRoot"
                         placeholder="/var/www/domain.test"
                         :rules="formRules"
@@ -53,12 +53,21 @@ import { getVirtualhostPath, showAlert } from "../../mixins/helpers.js"
 const { exec } = require('child_process');
 const fs = require('fs');
 
+const VHOST_FILE_EXTENSION = '.conf';
+
 export default {
     name: 'DialogEditVirtualhost',
 
     props: {
-        showEditModal: Boolean,
-        currentVirtualhost: [],
+        showEditModal: {
+            type: Boolean,
+            default: false,
+            required: true,
+        },
+        currentVirtualhost: {
+            default: [],
+            required: true,
+        },
     },
 
     data: function () {
@@ -66,7 +75,7 @@ export default {
             virtualhostIsValid: false,
 
             formServername: "",
-            formDocumentroot: "",
+            formDocumentRoot: "",
             formCustomErrorLog: true,
 
             formRules: [
@@ -83,7 +92,7 @@ export default {
         },
 
         saveVirtualhost () {
-            if (!this.formServername || !this.formDocumentroot) {
+            if (!this.formServername || !this.formDocumentRoot) {
                 return;
             }
 
@@ -107,7 +116,7 @@ export default {
 
         saveNewVirtualhost () {
             const that = this;
-            const vhostPath = getVirtualhostPath().replace(/\/$/, "") + "/" + this.formServername;
+            const vhostPath = getVirtualhostPath().replace(/\/$/, "") + "/" + this.formServername + VHOST_FILE_EXTENSION;
 
             fs.writeFile(vhostPath, this.getVirtualhostString(), function (error) {
                 if (error) {
@@ -120,14 +129,14 @@ export default {
 
         getVirtualhostString () {
             let string = "";
-            string += "<VirtualHost *:80>\n\tDocumentRoot \""+this.formDocumentroot+"\"\n";
+            string += "<VirtualHost *:80>\n\tDocumentRoot \""+this.formDocumentRoot+"\"\n";
             string += "\tServerName "+this.formServername+"\n";
-            string += "\n\t<Directory "+this.formDocumentroot+">\n";
+            string += "\n\t<Directory "+this.formDocumentRoot+">\n";
             string += "\t\tOptions FollowSymlinks Indexes\n\t\tAllowOverride All\n\t\tRequire all granted\n";
             string += "\t</Directory>\n";
 
             if (this.formCustomErrorLog) {
-                string += "\n\tErrorLog "+this.formDocumentroot+"/error.log\n";
+                string += "\n\tErrorLog "+this.formDocumentRoot+"/error.log\n";
             }
 
             string += "</VirtualHost>";
@@ -135,5 +144,22 @@ export default {
             return string;
         },
     },
+
+    watch: { 
+        currentVirtualhost: function(newVirtualhost, oldVirtualhost) {
+            if (!newVirtualhost) {
+                return;
+            }
+
+            console.log(newVirtualhost);
+
+            this.formServername = newVirtualhost.name;
+            this.formDocumentRoot = newVirtualhost.documentRoot;
+
+            if (newVirtualhost.errorLog) {
+                this.formCustomErrorLog = true;
+            }
+        }
+    }
 }
 </script>

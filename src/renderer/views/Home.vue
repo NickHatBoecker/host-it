@@ -35,6 +35,7 @@
 
         <dialog-edit-virtualhost
             :showEditModal="showEditModal"
+            :currentVirtualhost="currentVirtualhost"
             @close="showEditModal = false; currentVirtualhost = null;"
             @save="showEditModal = false; currentVirtualhost = null; fetch()"
         ></dialog-edit-virtualhost>
@@ -155,8 +156,6 @@
                     case "edit":
                         this.currentVirtualhost = virtualhost;
                         this.showEditModal = true;
-                        this.formServername = this.currentVirtualhost.name;
-                        this.formDocumentroot = this.currentVirtualhost.documentRoot;
                         break;
 
                     case "editm":

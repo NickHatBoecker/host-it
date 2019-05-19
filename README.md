@@ -4,6 +4,10 @@
 
 **ATTENTION**: Do not use this on a production system. It's for develop purpose only.
 
+<kbd>
+    <img src="https://nick-hat-boecker.de/files/images/github/nhb_host_it_v1.0.0.jpg" alt="Screenshot of Host-it! v1.0.0" width="100%"/>
+</kbd>
+
 #### Build Setup
 
 ``` bash
@@ -23,9 +27,10 @@ npm run lint
 
 #### Preconfiguration
 
-Add the following line to your httpd conf and create `vhosts` directory if necessary. Restart apache. Then, in the application, save the path to the `vhosts` directory.
-
-```Include extra/vhosts/*.conf```
+- Add the following line to your httpd conf: ```Include extra/vhosts/*.conf```
+- create `vhosts` directory if necessary
+- Restart apache: You can do this in the app or via `sudo apachectl restart`
+- Then, in the application settings, save the path to the `vhosts` directory.
 
 ---
 
