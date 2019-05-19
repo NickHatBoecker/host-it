@@ -80,6 +80,9 @@
             getVirtualhostPath,
             restartApache,
 
+            /**
+             * Fetch all configured virtualhosts from saved directory
+             */
             async fetch () {
                 const that = this;
 
@@ -109,13 +112,19 @@
                 });
             },
 
-            string2Virtualhost (string, filePath) {
+            /**
+             * Convert virtualhost string to virtualhost object
+             *
+             * @param string vhostString
+             * @param string filePath
+             */
+            string2Virtualhost (vhostString, filePath) {
                 // Remove whitespace and newlines
-                string = string.replace(/\s/g, "");
+                vhostString = vhostString.replace(/\s/g, "");
 
                 let pattern = /DocumentRoot\"(.*)\"ServerName(.*?)</;
 
-                let matches = string.match(pattern);
+                let matches = vhostString.match(pattern);
                 if (!matches || !matches[1] || !matches[2]) {
                     return;
                 }
@@ -127,7 +136,7 @@
                 };
 
                 pattern = /ErrorLog(.*?)</;
-                matches = string.match(pattern);
+                matches = vhostString.match(pattern);
                 if (matches && matches[1]) {
                     virtualhost.errorLog = matches[1];
                 }
@@ -135,6 +144,12 @@
                 return virtualhost;
             },
 
+            /**
+             * Execute dropdown action per virtualhost
+             *
+             * @param string action (edit|editm|remove|errorlog)
+             * @param virtualhost
+             */
             doAction (action, virtualhost) {
                 switch (action) {
                     case "edit":
@@ -143,14 +158,17 @@
                         this.formServername = this.currentVirtualhost.name;
                         this.formDocumentroot = this.currentVirtualhost.documentRoot;
                         break;
+
                     case "editm":
                         this.currentVirtualhost = virtualhost;
-                        // @TODO editm
+                        // @TODO editm: edit manually vhost string and add special needs
                         break;
+
                     case "remove":
                         exec('rm '+virtualhost.filePath);
                         this.fetch();
                         break;
+
                     case "errorlog":
                         if (virtualhost.errorLog && fs.existsSync(virtualhost.errorLog)) {
                             exec('open '+virtualhost.errorLog);
@@ -164,12 +182,17 @@
                             }
                         });
                         break;
+
                     default:
                         error.log('action not available: '+action);
                         break;
                 }
             },
 
+            /**
+             * <template> cannot execute thesese in @save
+             * so use this ugly helper...sigh
+             */
             onSaveSettings () {
                 this.showSettingsModal = false;
                 this.virtualhostsPath = getVirtualhostPath();
@@ -180,6 +203,8 @@
 </script>
 
 <style lang="scss">
+    $spacing-unit: 12px;
+
     html {
         height: 100%;
     }
@@ -202,11 +227,11 @@
     body { font-family: Arial, sans-serif; }
 
     .mt {
-        margin-top: 12px;
+        margin-top: $spacing-unit;
     }
 
     .mt--large {
-        margin-top: 48px;
+        margin-top: $spacing-unit*4;
     }
 
     .error--text {

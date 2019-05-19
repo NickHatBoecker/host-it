@@ -48,9 +48,10 @@ export default {
                 { text: 'Virtualhost', value: 'name', class: 'title' },
                 { text: 'Actions', value: 'actions', class: 'title', sortable: false, align: 'right' },
             ],
+
+            // Dropdown actions per virtualhost
             actions: [
                 { "id": "edit", "title": "edit" },
-                //{ "id": "editm", "title": "edit manually" },
                 { "id": "remove", "title": "remove" },
                 { "id": "errorlog", "title": "open error.log" },
             ],
