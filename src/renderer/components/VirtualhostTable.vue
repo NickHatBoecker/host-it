@@ -9,7 +9,7 @@
         >
             <template v-slot:items="props">
                 <td class="c-virtualhost text-xs-left title">
-                    <a @click="$emit('openUrl', `http://${props.item.name}`)" title="Open in browser">
+                    <a @click="openUrl(`http://${props.item.name}`)" title="Open in browser">
                         {{ props.item.name }}
                     </a>
                 </td>
@@ -33,6 +33,8 @@
 </template>
 
 <script>
+import { getVirtualhostPath, openUrl, setVirtualhostPath } from "../mixins/helpers.js"
+
 export default {
     name: 'virtualhost-table',
     props: {

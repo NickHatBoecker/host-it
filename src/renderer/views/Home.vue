@@ -23,45 +23,14 @@
             <virtualhost-table
                 :virtualhosts="virtualhosts"
                 @doAction="doAction"
-                @openUrl="openUrl"
             ></virtualhost-table>
         </v-container>
 
-        <!-- @TODO outsource dialog -->
-        <v-dialog v-model="showSettingsModal" fullscreen hide-overlay transition="dialog-bottom-transition">
-            <v-card>
-                <v-toolbar dark color="blue darken-3">
-                    <v-btn icon dark @click="showSettingsModal = false; virtualhostsPathInput = virtualhostsPath">
-                        <v-icon>close</v-icon>
-                    </v-btn>
-                    <v-toolbar-title>Settings</v-toolbar-title>
-                    <v-spacer></v-spacer>
-                    <v-toolbar-items>
-                        <v-btn dark flat @click="saveSettings()">Save</v-btn>
-                    </v-toolbar-items>
-                </v-toolbar>
-                <v-container>
-                    <div>
-                        <p color="grey">Please provide absolute path to virtualhost directory. You can find more information on <a @click="openUrl('https://github.com/theskyliner/host-it/')">gitHub</a>.</p>
-                        <v-text-field
-                            v-model="virtualhostsPathInput"
-                            placeholder="Absolute path to virtualhost directory..."
-                            solo
-                        ></v-text-field>
-
-                        <upload-button title="Choose folder..." :selectedCallback="onSelectVirtualhostPath"></upload-button>
-                    </div>
-                    <div>
-                        <h3>Helpers</h3>
-                        <div class="mt">
-                            <v-btn color="blue" dark @click="restartApache()">
-                                Restart Apache now
-                            </v-btn>
-                        </div>
-                    </div>
-                </v-container>
-            </v-card>
-        </v-dialog>
+        <dialog-settings
+            :showSettingsModal="showSettingsModal"
+            @close="showSettingsModal = false"
+            @save="onSaveSettings"
+        ></dialog-settings>
 
         <!-- @TODO outsource dialog -->
         <v-dialog v-model="showEditModal" fullscreen hide-overlay transition="dialog-bottom-transition">
@@ -115,16 +84,11 @@
 
 <script>
     import Vue from 'vue';
-    import UploadButton from '../components/UploadFileButton';
+    import DialogSettings from '../components/dialogs/Settings';
     import VirtualhostTable from '../components/VirtualhostTable';
+    import { getVirtualhostPath, restartApache } from "../mixins/helpers.js";
 
-    const STORAGE_VIRTUALHOSTS_PATH = 'nhb_hostit.virtualhosts_path';
     const DEFAULT_ERROR_LOG = '/var/log/apache2/error_log';
-
-    const sudo = require('sudo-prompt');
-    const sudoOptions = {
-        name: 'Host it',
-    };
 
     const { exec } = require('child_process');
     const fs = require('fs');
@@ -136,14 +100,13 @@
     export default {
         name: 'home',
 
+        components: { DialogSettings, VirtualhostTable },
+
         data: function () {
             return {
-                loader: null,
-                loading: [],
                 virtualhosts: [],
                 showSettingsModal: false,
                 virtualhostsPath: '',
-                virtualhostsPathInput: '',
 
                 currentVirtualhost: null,
                 showEditModal: false,
@@ -158,9 +121,8 @@
         },
 
         mounted: function () {
-            if (localStorage.getItem(STORAGE_VIRTUALHOSTS_PATH)) {
-                this.virtualhostsPath = localStorage.getItem(STORAGE_VIRTUALHOSTS_PATH);
-                this.virtualhostsPathInput = this.virtualhostsPath;
+            if (getVirtualhostPath()) {
+                this.virtualhostsPath = getVirtualhostPath();
                 this.fetch();
             } else {
                 this.showSettingsModal = true;
@@ -168,13 +130,8 @@
         },
 
         methods: {
-            saveSettings () {
-                localStorage.setItem(STORAGE_VIRTUALHOSTS_PATH, this.virtualhostsPathInput);
-                this.virtualhostsPath = this.virtualhostsPathInput;
-                this.showSettingsModal = false;
-
-                this.fetch();
-            },
+            getVirtualhostPath,
+            restartApache,
 
             async fetch () {
                 const that = this;
@@ -235,10 +192,6 @@
                 return await readFile(filePath, {encoding: 'utf-8'});
             },
 
-            openUrl (url) {
-                require('electron').shell.openExternal(url);
-            },
-
             doAction (action, virtualhost) {
                 switch (action) {
                     case "edit":
@@ -267,18 +220,6 @@
                         error.log('action not available: '+action);
                         break;
                 }
-            },
-
-            restartApache () {
-                const command = 'apachectl restart';
-                sudo.exec(command, sudoOptions, function(error, stdout, stderr) {
-                    if (error) {
-                        console.log(error);
-                        return;
-                    }
-
-                    alert('Restarted Apache');
-                });
             },
 
             saveVirtualhost () {
@@ -310,9 +251,9 @@
 
                 fs.writeFile(vhostPath, this.getVirtualhostString(), function (error) {
                     if (error) {
-                        that.showAlert(error, 'danger');
+                        showAlert(error, 'danger');
                     } else {
-                        that.showAlert('Virtualhost successfully added. <a @click="restartApache()">Restart Apache now</a>.', 'success');
+                        showAlert('Virtualhost successfully added. <a @click="restartApache()">Restart Apache now</a>.', 'success');
                     }
                 });
 
@@ -336,14 +277,6 @@
                 return string;
             },
 
-            showAlert (message, type) {
-                console.log(message);
-            },
-
-            onSelectVirtualhostPath (file) {
-                this.virtualhostsPathInput = file.path;
-            },
-
             closeEditModal () {
                 this.showEditModal = false;
                 this.currentVirtualhost = null;
@@ -352,9 +285,13 @@
                 this.formDocumentRoot = "";
                 this.formCustomErrorLog = true;
             },
-        },
 
-        components: { UploadButton, VirtualhostTable },
+            onSaveSettings () {
+                this.showSettingsModal = false;
+                this.virtualhostsPath = getVirtualhostPath();
+                this.fetch();
+            },
+        },
     }
 </script>
 
