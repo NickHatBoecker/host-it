@@ -1,5 +1,5 @@
 <template>
-    <button type="button" class="v-btn theme--dark v-btn--small grey jbtn-file">
+    <button type="button" class="v-btn theme--dark v-btn--small blue jbtn-file">
         <div class="v-btn__content">
             {{ title }}
             <input type="file" webkitdirectory v-on:change="fileSelected">
@@ -9,7 +9,7 @@
 
 <script>
 export default {
-    name: 'upload-button',
+    name: 'select-file-button',
     props: {
         selectedCallback: Function,
         title: String

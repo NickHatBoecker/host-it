@@ -20,15 +20,22 @@
                     </p>
                     <v-text-field
                         v-model="virtualhostsPathInput"
-                        placeholder="Absolute path to virtualhost directory..."
-                        solo
+                        label="Absolute path to virtualhost directory"
+                        box
                     ></v-text-field>
 
-                    <upload-button title="Choose folder..." :selectedCallback="onSelectVirtualhostPath"></upload-button>
+                    <select-file-button
+                        title="Choose folder..."
+                        :selectedCallback="onSelectedVirtualhostPath"
+                    ></select-file-button>
                 </div>
 
                 <div>
-                    <!-- @TODO default error log -->
+                    <v-text-field
+                        v-model="errorLogInput"
+                        label="Absolute path to default error_log"
+                        box
+                    ></v-text-field>
                 </div>
 
                 <div>
@@ -45,13 +52,13 @@
 </template>
 
 <script>
-import UploadButton from '../UploadFileButton';
-import { getVirtualhostPath, openUrl, restartApache, setVirtualhostPath } from "../../mixins/helpers.js";
+import SelectFileButton from '../SelectFileButton';
+import { getDefaultErrorLogPath, getVirtualhostPath, openUrl, restartApache, setDefaultErrorLogPath, setVirtualhostPath } from "../../mixins/helpers.js";
 
 export default {
     name: 'DialogSettings',
 
-    components: { UploadButton },
+    components: { SelectFileButton },
 
     props: {
         showSettingsModal: Boolean,
@@ -60,6 +67,7 @@ export default {
     data: function () {
         return {
             virtualhostsPathInput: getVirtualhostPath(),
+            errorLogInput: getDefaultErrorLogPath(),
         }
     },
 
@@ -70,15 +78,17 @@ export default {
 
         saveSettings () {
             setVirtualhostPath(this.virtualhostsPathInput);
+            setDefaultErrorLogPath(this.errorLogInput);
             this.$emit('save');
         },
 
-        onSelectVirtualhostPath (file) {
+        onSelectedVirtualhostPath (file) {
             if (!file) {
                 return;
             }
+
             this.virtualhostsPathInput = file.path;
-        },
+        }
     },
 }
 </script>

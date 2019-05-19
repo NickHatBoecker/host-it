@@ -30,6 +30,7 @@
             </template>
         </v-data-table>
     </div>
+    <p class="mt--large" v-else>No virtualhosts configured. But you can <a @click="$emit('add')">add one</a>.</p>
 </template>
 
 <script>

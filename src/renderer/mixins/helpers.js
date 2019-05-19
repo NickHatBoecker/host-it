@@ -1,3 +1,6 @@
+const DEFAULT_ERROR_LOG = '/var/log/apache2/error_log';
+
+const STORAGE_DEFAULT_ERROR_LOG_PATH = 'nhb_hostit.default_error_log_path';
 const STORAGE_VIRTUALHOSTS_PATH = 'nhb_hostit.virtualhosts_path';
 
 const sudo = require('sudo-prompt');
@@ -11,6 +14,18 @@ const util = require('util');
 const readFile = util.promisify(fs.readFile);
 
 /**
+ * Get default error log path from local storage
+ *
+ * @return string
+ */
+export function getDefaultErrorLogPath () {
+    if (!localStorage.getItem(STORAGE_DEFAULT_ERROR_LOG_PATH)) {
+        return DEFAULT_ERROR_LOG;
+    }
+    return localStorage.getItem(STORAGE_DEFAULT_ERROR_LOG_PATH);
+}
+
+/**
  * Hack to read file with utf-8 encoding.
  *
  * @param string filePath
@@ -21,6 +36,8 @@ export async function getFileContent (filePath) {
 
 /**
  * Get virtual host path from local storage
+ *
+ * @return string
  */
 export function getVirtualhostPath() {
     return localStorage.getItem(STORAGE_VIRTUALHOSTS_PATH);
@@ -48,6 +65,15 @@ export function restartApache() {
 
         alert('Restarted Apache');
     });
+}
+
+/**
+ * Set default error log path in local storage
+ *
+ * @param string path
+ */
+export function setDefaultErrorLogPath(path) {
+    localStorage.setItem(STORAGE_DEFAULT_ERROR_LOG_PATH, path);
 }
 
 /**

@@ -23,6 +23,7 @@
             <virtualhost-table
                 :virtualhosts="virtualhosts"
                 @doAction="doAction"
+                @add="showEditModal = true"
             ></virtualhost-table>
         </v-container>
 
@@ -45,9 +46,7 @@
     import DialogEditVirtualhost from '../components/dialogs/EditVirtualhost';
     import DialogSettings from '../components/dialogs/Settings';
     import VirtualhostTable from '../components/VirtualhostTable';
-    import { getFileContent, getVirtualhostPath, restartApache, showAlert } from "../mixins/helpers.js";
-
-    const DEFAULT_ERROR_LOG = '/var/log/apache2/error_log';
+    import { getDefaultErrorLogPath, getFileContent, getVirtualhostPath, restartApache, showAlert } from "../mixins/helpers.js";
 
     const { exec } = require('child_process');
     const fs = require('fs');
@@ -158,10 +157,10 @@
                             break;
                         }
 
-                        exec('open '+DEFAULT_ERROR_LOG, function (error) {
+                        exec('open '+getDefaultErrorLogPath(), function (error) {
                             if (error) {
                                 console.log(error);
-                                showAlert('Default error_log under "/var/log/apache2/error_log" does not exist.')
+                                showAlert(`Default error_log under "${ getDefaultErrorLogPath() }" does not exist.`)
                             }
                         });
                         break;
