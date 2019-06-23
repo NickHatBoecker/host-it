@@ -4,11 +4,11 @@
             <v-toolbar-title style="width: 300px" class="ml-0 pl-3">
                 <span class="hidden-sm-and-down">Host-it!</span>
             </v-toolbar-title>
-            <v-btn small depressed flat color="white">
-                Refresh list <v-icon right @click="fetch()" title="Refresh virtualhost list">refresh</v-icon>
+            <v-btn small depressed flat color="white" @click="fetch()">
+                Refresh list <v-icon right title="Refresh virtualhost list">refresh</v-icon>
             </v-btn>
-            <v-btn small depressed flat color="white">
-                Restart Apache <v-icon right @click="restartApache()" title="Restart Apache">refresh</v-icon>
+            <v-btn small depressed flat color="white" @click="restartApache()">
+                Restart Apache <v-icon right title="Restart Apache">refresh</v-icon>
             </v-btn>
             <v-spacer></v-spacer>
             <v-btn icon>
