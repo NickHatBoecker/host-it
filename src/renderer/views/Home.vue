@@ -8,7 +8,7 @@
                 Refresh list <v-icon right title="Refresh virtualhost list">refresh</v-icon>
             </v-btn>
             <v-btn small depressed flat color="white" @click="restartApache()">
-                Restart Apache <v-icon right title="Restart Apache">refresh</v-icon>
+                Restart Apache
             </v-btn>
             <v-spacer></v-spacer>
             <v-btn icon>
@@ -19,9 +19,19 @@
             </v-btn>
         </v-toolbar>
 
-        <v-container>
+        <v-container fluid>
+            <div class="mt--large c-search">
+                <v-text-field
+                    v-model="searchTerm"
+                    filled
+                    clearable
+                    color="blue"
+                    placeholder="Search"
+                ></v-text-field>
+            </div>
+
             <virtualhost-table
-                :virtualhosts="virtualhosts"
+                :virtualhosts="filteredVirtualhosts"
                 @doAction="doAction"
                 @add="showEditModal = true"
             ></virtualhost-table>
@@ -65,7 +75,19 @@
 
                 showSettingsModal: false,
                 showEditModal: false,
+
+                searchTerm: '',
             }
+        },
+
+        computed: {
+            filteredVirtualhosts: function () {
+                if (this.searchTerm) {
+                    return this.filterVirtualhosts(this.searchTerm);
+                } else {
+                    return this.virtualhosts;
+                }
+            },
         },
 
         mounted: function () {
@@ -197,6 +219,14 @@
                 this.virtualhostsPath = getVirtualhostPath();
                 this.fetch();
             },
+
+            filterVirtualhosts (query) {
+                query = query.toLowerCase(); // Case insensitive filter
+
+                const virtualhosts = this.virtualhosts.filter(x => x.name.toLowerCase().includes(query) || x.documentRoot.toLowerCase().includes(query))
+
+                return virtualhosts;
+            }
         },
     }
 </script>
@@ -216,7 +246,7 @@
 
     a {
         cursor: pointer;
-        color: blue;
+        color: #1565c0;
     }
 
     td:not(.c-virtualhost) a:hover {
@@ -229,11 +259,20 @@
         margin-top: $spacing-unit;
     }
 
+    .mt--medium {
+        margin-top: $spacing-unit*2;
+    }
+
     .mt--large {
-        margin-top: $spacing-unit*4;
+        margin-top: $spacing-unit*5;
     }
 
     .error--text {
         color: red !important;
+    }
+
+    .c-search .v-input__slot {
+        background: rgba(0, 0, 0, .06);
+        padding: $spacing-unit;
     }
 </style>

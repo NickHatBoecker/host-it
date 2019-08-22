@@ -76,7 +76,7 @@ export default {
 
             formServername: "",
             formDocumentRoot: "",
-            formCustomErrorLog: true,
+            formCustomErrorLog: false,
 
             formRules: [
                 v => !!v || 'Field is required',
@@ -122,7 +122,7 @@ export default {
                 if (error) {
                     showAlert(error, 'danger');
                 } else {
-                    showAlert('Virtualhost successfully added. <a @click="restartApache()">Restart Apache now</a>.', 'success');
+                    showAlert('Virtualhost successfully added. You have to restart Apache.', 'success');
                 }
             });
         },

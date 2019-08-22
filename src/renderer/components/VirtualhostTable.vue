@@ -5,13 +5,16 @@
             :items="virtualhosts"
             hide-actions
             item-key="name"
-            class="mt--large"
+            class="mt--medium"
         >
             <template v-slot:items="props">
                 <td class="c-virtualhost text-xs-left title">
                     <a @click="openUrl(`http://${props.item.name}`)" title="Open in browser">
                         {{ props.item.name }}
                     </a>
+                </td>
+                <td class="text-xs-left title">
+                    <small>{{ props.item.documentRoot }}</small>
                 </td>
                 <td class="text-xs-right">
                     <v-menu bottom left>
@@ -46,6 +49,7 @@ export default {
         return {
             headers: [
                 { text: 'Virtualhost', value: 'name', class: 'title' },
+                { text: 'DocumentRoot', value: 'documentRoot', class: 'title' },
                 { text: 'Actions', value: 'actions', class: 'title', sortable: false, align: 'right' },
             ],
 
@@ -63,3 +67,9 @@ export default {
     },
 }
 </script>
+
+<style>
+small {
+    font-size: 12px;
+}
+</style>
