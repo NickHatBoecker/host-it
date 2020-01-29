@@ -94,3 +94,35 @@ export function setVirtualhostPath(path) {
 export function showAlert(message, type) {
     alert(message);
 }
+
+/**
+ * Convert virtualhost string to virtualhost object
+ *
+ * @param string vhostString
+ * @param string filePath
+ */
+export function string2Virtualhost (vhostString, filePath) {
+    // Remove whitespace and newlines
+    vhostString = vhostString.replace(/\s/g, "");
+
+    let pattern = /DocumentRoot\"(.*)\"ServerName(.*?)</;
+
+    let matches = vhostString.match(pattern);
+    if (!matches || !matches[1] || !matches[2]) {
+        return;
+    }
+
+    let virtualhost = {
+        "name": matches[2],
+        "documentRoot": matches[1],
+        "filePath": filePath,
+    };
+
+    pattern = /ErrorLog(.*?)</;
+    matches = vhostString.match(pattern);
+    if (matches && matches[1]) {
+        virtualhost.errorLog = matches[1];
+    }
+
+    return virtualhost;
+}

@@ -4,16 +4,21 @@
             <v-toolbar-title style="width: 300px" class="ml-0 pl-3">
                 <span class="hidden-sm-and-down">Host-it!</span>
             </v-toolbar-title>
+
             <v-btn small depressed flat color="white" @click="fetch()">
                 Refresh list <v-icon right title="Refresh virtualhost list">refresh</v-icon>
             </v-btn>
+
             <v-btn small depressed flat color="white" @click="restartApache()">
                 Restart Apache
             </v-btn>
+
             <v-spacer></v-spacer>
+
             <v-btn icon>
                 <v-icon @click="showEditModal = true" title="Add virtualhost">add</v-icon>
             </v-btn>
+
             <v-btn icon>
                 <v-icon @click="showSettingsModal = true" title="Go to settings">settings</v-icon>
             </v-btn>
@@ -56,7 +61,7 @@
     import DialogEditVirtualhost from '../components/dialogs/EditVirtualhost';
     import DialogSettings from '../components/dialogs/Settings';
     import VirtualhostTable from '../components/VirtualhostTable';
-    import { getDefaultErrorLogPath, getFileContent, getVirtualhostPath, restartApache, showAlert } from "../mixins/helpers.js";
+    import { getDefaultErrorLogPath, getFileContent, getVirtualhostPath, restartApache, showAlert, string2Virtualhost } from "../mixins/helpers.js";
 
     const { exec } = require('child_process');
     const fs = require('fs');
@@ -81,11 +86,10 @@
 
         computed: {
             filteredVirtualhosts: function () {
-                if (this.searchTerm) {
-                    return this.filterVirtualhosts(this.searchTerm);
-                } else {
-                    return this.virtualhosts;
-                }
+                const query = this.searchTerm.toLowerCase(); // Case insensitive filter
+                const queryInTitleOrDocumentRoot = x => x.name.toLowerCase().includes(query) || x.documentRoot.toLowerCase().includes(query)
+
+                return this.virtualhosts.filter(queryInTitleOrDocumentRoot)
             },
         },
 
@@ -94,6 +98,7 @@
                 this.virtualhostsPath = getVirtualhostPath();
                 this.fetch();
             } else {
+                // Show settings if no config file is configured yet.
                 this.showSettingsModal = true;
             }
         },
@@ -105,7 +110,7 @@
             /**
              * Fetch all configured virtualhosts from saved directory
              */
-            async fetch () {
+            fetch () {
                 const that = this;
 
                 // Reset
@@ -124,7 +129,7 @@
                     files.forEach(function (file) {
                         var filePath = `${that.virtualhostsPath}${file}`;
                         getFileContent(filePath).then(vhostString => {
-                            const virtualhost = that.string2Virtualhost(vhostString, filePath);
+                            const virtualhost = string2Virtualhost(vhostString, filePath);
                             if (!virtualhost) {
                                 return;
                             }
@@ -132,38 +137,6 @@
                         });
                     });
                 });
-            },
-
-            /**
-             * Convert virtualhost string to virtualhost object
-             *
-             * @param string vhostString
-             * @param string filePath
-             */
-            string2Virtualhost (vhostString, filePath) {
-                // Remove whitespace and newlines
-                vhostString = vhostString.replace(/\s/g, "");
-
-                let pattern = /DocumentRoot\"(.*)\"ServerName(.*?)</;
-
-                let matches = vhostString.match(pattern);
-                if (!matches || !matches[1] || !matches[2]) {
-                    return;
-                }
-
-                let virtualhost = {
-                    "name": matches[2],
-                    "documentRoot": matches[1],
-                    "filePath": filePath,
-                };
-
-                pattern = /ErrorLog(.*?)</;
-                matches = vhostString.match(pattern);
-                if (matches && matches[1]) {
-                    virtualhost.errorLog = matches[1];
-                }
-
-                return virtualhost;
             },
 
             /**
@@ -209,23 +182,11 @@
                 }
             },
 
-            /**
-             * <template> cannot execute thesese in @save
-             * so use this ugly helper...sigh
-             */
             onSaveSettings () {
                 this.showSettingsModal = false;
                 this.virtualhostsPath = getVirtualhostPath();
                 this.fetch();
             },
-
-            filterVirtualhosts (query) {
-                query = query.toLowerCase(); // Case insensitive filter
-
-                const virtualhosts = this.virtualhosts.filter(x => x.name.toLowerCase().includes(query) || x.documentRoot.toLowerCase().includes(query))
-
-                return virtualhosts;
-            }
         },
     }
 </script>

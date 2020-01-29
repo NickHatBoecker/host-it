@@ -24,8 +24,8 @@
                             </v-btn>
                         </template>
                         <v-list>
-                            <v-list-tile v-for="(item, i) in actions" :key="i" @click="$emit('doAction', item.id, props.item)">
-                                <v-list-tile-title>{{ item.title }}</v-list-tile-title>
+                            <v-list-tile v-for="(action, i) in actions" :key="i" @click="$emit('doAction', action.identifier, props.item)">
+                                <v-list-tile-title>{{ action.title }}</v-list-tile-title>
                             </v-list-tile>
                         </v-list>
                     </v-menu>
@@ -37,7 +37,7 @@
 </template>
 
 <script>
-import { getVirtualhostPath, openUrl, setVirtualhostPath } from "../mixins/helpers.js";
+import { openUrl } from "../mixins/helpers.js";
 
 export default {
     name: 'virtualhost-table',
@@ -55,9 +55,9 @@ export default {
 
             // Dropdown actions per virtualhost
             actions: [
-                { "id": "edit", "title": "edit" },
-                { "id": "remove", "title": "remove" },
-                { "id": "errorlog", "title": "open error.log" },
+                { "identifier": "edit", "title": "edit" },
+                { "identifier": "remove", "title": "remove" },
+                { "identifier": "errorlog", "title": "open error.log" },
             ],
         }
     },
