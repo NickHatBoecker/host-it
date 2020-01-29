@@ -86,6 +86,10 @@
 
         computed: {
             filteredVirtualhosts: function () {
+                if (!this.searchTerm) {
+                    return this.virtualhosts
+                }
+
                 const query = this.searchTerm.toLowerCase(); // Case insensitive filter
                 const queryInTitleOrDocumentRoot = x => x.name.toLowerCase().includes(query) || x.documentRoot.toLowerCase().includes(query)
 
