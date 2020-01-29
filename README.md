@@ -1,4 +1,4 @@
-# Deploy-it!
+# Host-it!
 
 > Host-it! is an electron-vue app to manage your virtualhosts easily on Mac OS.
 
@@ -13,24 +13,25 @@
 - Manage all your virtualhosts easily
 - Add/Edit/Remove virtualhost
 - Restart Apache with a click of a button
-- Open virtualhost domain in default browser
-- Open virtualhost specific error_log (or default error_log if no specific one was added)
+- Open virtualhost in default browser
+- Open virtualhost error_log (or default error_log if no specific one was added)
 - Deposit default `error_log` path
 
 # How to use
 
-- Add the following line to your httpd conf: ```Include extra/vhosts/*.conf```
-- create `vhosts` directory if necessary
-- Restart apache: You can do this in the app or via `sudo apachectl restart`
-- Then, in the application settings, save the path to the `vhosts` directory.
+- Create `vhosts` directory if necessary (I have mine under `/usr/local/etc/httpd/extra/vhosts/`)
+- Include the directory in your httpd conf: ```Include extra/vhosts/*.conf```
+- Restart apache: You can do this in the app or via `sudo apachectl -k restart`
+- Then, in the application settings, set the path to the `vhosts` directory.
 
-**ATTENTION**: `/etc/hosts` is not updated. Update manually or use the great tool [Dnsmasq](http://www.thekelleys.org.uk/dnsmasq/doc.html). You can install it via `brew install dnsmasq`.
+**ATTENTION**: Your `/etc/hosts` is not updated automatically. Update manually or use the great tool [Dnsmasq](http://www.thekelleys.org.uk/dnsmasq/doc.html). You can install it via Homebrew: `brew install dnsmasq`.
 
 # More to come
 
 - Edit virtualhost entry manually and add specific needs e.g. Directory Options
 - Syntax Check for Apache Config
-- Automatic httpd.conf setup with ```Include extra/vhosts/*.conf```
+- Offer automatic httpd.conf setup with ```Include extra/vhosts/*.conf```
+- Check if given document root exists (otherwhise offer to create it)
 
 # Build Setup
 
