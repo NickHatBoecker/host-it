@@ -56,7 +56,7 @@ export function openUrl(url) {
  * Restart apache with password prompt because of sudo
  */
 export function restartApache() {
-    const command = 'apachectl restart';
+    const command = 'apachectl -k restart';
     sudo.exec(command, sudoOptions, function(error, stdout, stderr) {
         if (error) {
             console.log(error);
