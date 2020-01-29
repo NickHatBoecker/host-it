@@ -53,7 +53,6 @@
 </template>
 
 <script>
-    import Vue from 'vue';
     import DialogEditVirtualhost from '../components/dialogs/EditVirtualhost';
     import DialogSettings from '../components/dialogs/Settings';
     import VirtualhostTable from '../components/VirtualhostTable';
@@ -123,7 +122,7 @@
                     }
 
                     files.forEach(function (file) {
-                        var filePath = `${that.virtualhostsPath}/${file}`;
+                        var filePath = `${that.virtualhostsPath}${file}`;
                         getFileContent(filePath).then(vhostString => {
                             const virtualhost = that.string2Virtualhost(vhostString, filePath);
                             if (!virtualhost) {
