@@ -14,7 +14,7 @@
                 </v-toolbar-items>
             </v-toolbar>
             <v-container>
-                <v-form v-model="virtualhostIsValid">
+                <v-form v-model="virtualhostIsValid" ref="form">
                     <v-text-field
                         v-model="formServername"
                         label="ServerName"
@@ -88,7 +88,9 @@ export default {
         reset () {
             this.formServername = "";
             this.formDocumentRoot = "";
-            this.formCustomErrorLog = false;
+            this.formCustomErrorLog = false
+
+            this.$refs.form.reset()
         },
 
         saveVirtualhost () {
@@ -145,7 +147,7 @@ export default {
         },
     },
 
-    watch: { 
+    watch: {
         currentVirtualhost: function(newVirtualhost, oldVirtualhost) {
             if (!newVirtualhost) {
                 return;
