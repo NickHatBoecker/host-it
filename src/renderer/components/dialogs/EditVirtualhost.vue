@@ -88,7 +88,7 @@ export default {
         reset () {
             this.formServername = "";
             this.formDocumentRoot = "";
-            this.formCustomErrorLog = true;
+            this.formCustomErrorLog = false;
         },
 
         saveVirtualhost () {
