@@ -57,7 +57,7 @@
     }
   },
   "dependencies": {
-    "axios": "^0.18.0",
+    "axios": "^0.18.1",
     "sudo-prompt": "^8.2.5",
     "vue": "^2.5.16",
     "vue-electron": "^1.0.6",
